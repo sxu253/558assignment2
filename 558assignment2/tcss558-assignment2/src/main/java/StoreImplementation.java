@@ -11,15 +11,14 @@ public class StoreImplementation {
 	String value;
 	String key;
 
-	StoreImplementation(HashMap<String, String> storeMap) {
+	StoreImplementation() {
 
 		this.storeMap = storeMap;
 
 	}
 
 	// Put key-values in a hash-map
-	public HashMap<String, String> putValuesInStrore(String[] taskKeyValue) {
-
+	public synchronized HashMap<String, String> putValuesInStrore(String[] taskKeyValue) {
 		key = taskKeyValue[1];
 		value = taskKeyValue[2];
 
@@ -39,7 +38,7 @@ public class StoreImplementation {
 	}
 
 	// Delete key-value from hash-map
-	public HashMap<String, String> deleteValuesFromStore(String[] taskKeyValue) {
+	public synchronized HashMap<String, String> deleteValuesFromStore(String[] taskKeyValue) {
 
 		if (storeMap.get(taskKeyValue[1]) != null) {
 			storeMap.remove(taskKeyValue[1]);

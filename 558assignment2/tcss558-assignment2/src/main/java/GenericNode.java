@@ -13,8 +13,6 @@ public class GenericNode {
 
 		// Declare and initialize variables
 		int port;
-		Server server = new Server();
-		Client client = new Client();
 		String protocol = null;
 		String hostName = null;
 		String task = null;
@@ -25,14 +23,17 @@ public class GenericNode {
 		if (args.length == 2) {
 			protocol = args[0];
 			port = Integer.parseInt(args[1]);
-			if (protocol.equals("ts")) {
+			if (port != 4410) {
+				Server server = new Server();
 				server.runTcpProtocolServer(port);
+			} else {
+				LeaderServer leadServer = new LeaderServer();
+				leadServer.runTcpProtocolServer(port);
 			}
 		}
 		// Determines which client type is to be run
 		hostName = args[1];
 		port = Integer.parseInt(args[2]);
-
 		if (args.length > 3) {
 			task = args[3];
 		}
@@ -43,6 +44,7 @@ public class GenericNode {
 			value = args[5];
 		}
 		if (protocol.equals("tc")) {
+			Client client = new Client();
 			client.runTcpProtocolClient(hostName, port, task, key, value);
 		}
 	}
