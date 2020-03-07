@@ -25,7 +25,8 @@ public class LeaderServer {
     private static int serverPort = 4410;
     private static String disconnect = "open";
     static ConcurrentHashMap<String, String> operations = new ConcurrentHashMap<>();
-    private static ArrayList<String> members = new ArrayList<String>();
+    static ConcurrentHashMap<Integer, InetAddress> members = new ConcurrentHashMap<>();
+//    private static ArrayList<String> members = new ArrayList<String>();
     private static Integer port;
 
     public static void runTcpProtocolServer(String args[]) {
@@ -35,23 +36,43 @@ public class LeaderServer {
         MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
         memberThread.start();
         
+        
+
         try {
         	ServerSocket leaderServerSocket = new ServerSocket(port);
-        	
+
         	while(!disconnect.equalsIgnoreCase("exit")){
+        		System.out.println("!!!!!starting while leader loop");
         		Socket leaderSocket = leaderServerSocket.accept();
-        		String[] message = clientCommunication(leaderSocket, kvStore);
-        		disconnect = message[3];
-        		if(!disconnect.equalsIgnoreCase("exit")) {
-        			ThreadHandler thread = new ThreadHandler(leaderSocket, message, kvStore, "client", operations);
-        			thread.start();
-        		} 
+        		//        		String[] message = clientCommunication(leaderSocket, kvStore);
+        		//        		System.out.println(message[3]);
+        		//        		System.out.println(!message[3].equalsIgnoreCase("exit"));
+        		//        		if(!message[3].equalsIgnoreCase("exit")) {
+        		//        			ThreadHandler thread = new ThreadHandler(leaderSocket, message, kvStore, "client", operations);
+        		//        			thread.start();
+        		System.out.println("inbetween in if and for statment");
+
+//        		for(Map.Entry mapElement : members.entrySet()) { 
+//        			InetAddress ip = (InetAddress) mapElement.getValue();
+//        			int port = (int) mapElement.getKey();
+//        			Socket serveSocket = new Socket(ip, port);
+//        			PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
+//        			System.out.println("opening sockets " + port);
+//        			out.println("hello from leader!!" + port);
+//        			BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
+//        			String clientInput = input.readLine();
+//        			System.out.println(clientInput);
+//        			String[] serverMessage = clientInput.split(" ");
+//        			ThreadHandler serverThread = new ThreadHandler(leaderSocket, serverMessage, kvStore, "server", operations);
+//        			serverThread.start();
+//        		}
+        		//        		} 
 
         	}
-        
+
         	leaderServerSocket.close();
 
-		} catch (IOException e) {
+        } catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
