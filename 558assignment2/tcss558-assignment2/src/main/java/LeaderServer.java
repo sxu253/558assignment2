@@ -30,26 +30,9 @@ public class LeaderServer {
     public static void runTcpProtocolServer(String args[]) {
         int port = Integer.valueOf(args[1]);
         KeyValueStore kvStore = new KeyValueStore();
-        try (Socket socket = new Socket("localhost", port)) {
 
-			InputStream input = socket.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            
-			OutputStream output = socket.getOutputStream();
-			PrintWriter writer = new PrintWriter(output, true);
-			writer.println("helllllo");
-			
-
-		} catch (UnknownHostException ex) {
-
-			System.out.println("Server not found: " + ex.getMessage());
-
-		} catch (IOException ex) {
-
-			System.out.println("I/O error: " + ex.getMessage());
-		}
-//        MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
-//        memberThread.start();
+        MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
+        memberThread.start();
         
 //        System.out.println(members.size());
         

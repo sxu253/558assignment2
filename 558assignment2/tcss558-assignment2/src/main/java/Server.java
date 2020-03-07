@@ -29,25 +29,26 @@ public class Server {
 		port = Integer.valueOf(args[1]);
 		KeyValueStore kvStore = new KeyValueStore();
 		try {
-			ServerSocket clientServerSocket = new ServerSocket(port);
-			ServerSocket leaderServerSocket = new ServerSocket(leaderPort);
+			//ServerSocket clientServerSocket = new ServerSocket(port);
+			ServerSocket leaderServerSocket = new ServerSocket(port);
+			
 			while(!disconnect.equalsIgnoreCase("exit")){
 				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
-				Socket clientSocket = clientServerSocket.accept();
-				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-				BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				String clientInput = input.readLine();
-				System.out.println(clientInput);
-				out.println("hello leader");
-				String[] message = clientInput.split(" ");
-				if(message[3].equalsIgnoreCase("exit")) {
-					disconnect = "exit";
-				} else {
-					ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
-					thread.start();
-				}
+				//Socket clientSocket = clientServerSocket.accept();
+				//PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+				//BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				//String clientInput = input.readLine();
+				//System.out.println(clientInput);
+				//out.println("hello leader");
+				//String[] message = clientInput.split(" ");
+//				if(message[3].equalsIgnoreCase("exit")) {
+//					disconnect = "exit";
+//				} else {
+//					ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
+//					thread.start();
+//				}
 			}
-			clientServerSocket.close();
+			//clientServerSocket.close();
 			leaderServerSocket.close();
 		
 			
@@ -59,7 +60,7 @@ public class Server {
 	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
 		try {
 			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
-			out.println("hello " + port);
+			out.println("hello from leaderServerCommunication" + port);
 			BufferedReader input = new BufferedReader(new InputStreamReader(leaderServerSocket.getInputStream()));
 			String leaderInput = input.readLine();
 			System.out.println(leaderInput);

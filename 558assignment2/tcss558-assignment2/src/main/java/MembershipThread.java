@@ -29,8 +29,9 @@ public class MembershipThread extends Thread {
 
 	public void run() {
 		System.out.println("thread started");
+//		ArrayList<String> copyList = new ArrayList<String>();
 		while(true){
-			StringBuilder sb = new StringBuilder();
+			
 			//File file = new File("/tmp/nodes.cfg");
 			File file = new File("nodes.txt");
 			try {
@@ -43,6 +44,10 @@ public class MembershipThread extends Thread {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
+//			ArrayList<String> clone = (ArrayList<String>) members.clone();
+//			copyList = clone;
+//			members.clear();
+			
 			//            String memberList = sb.toString();
 
 			System.out.println(members.toString());
@@ -65,6 +70,8 @@ public class MembershipThread extends Thread {
 				InetAddress ip = InetAddress.getByName(info[0]);
 				int port = Integer.valueOf(info[1]);
 //				ServerSocket serverSocket = new ServerSocket(port);
+				System.out.println(ip);
+				System.out.println(port);
 				Socket serveSocket = new Socket(ip, port);
 				PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
 				out.println("hello from leader" + port);
