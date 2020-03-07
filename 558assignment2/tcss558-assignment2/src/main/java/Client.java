@@ -21,18 +21,18 @@ import java.rmi.registry.Registry;
 public class Client {
 
 	// Implement client side socket for TCP
-	public void runTcpProtocolClient(String hostName, int port, String task, String key, String value) {
+	public void runTcpProtocolClient(String hostName, int port, String[] args) {
 
 		try (Socket socket = new Socket(hostName, port)) {
 			System.out.println("ready to start working");
 			InputStream input = socket.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
 			OutputStream output = socket.getOutputStream();
+			
 			PrintWriter writer = new PrintWriter(output, true);
 			
-			writer.println("hellllo from client!!!!" +port);
-			
+			String message = String.join(" ", args);
+			writer.println(message);
 			System.out.println(reader.readLine());
 			
 			input.close();

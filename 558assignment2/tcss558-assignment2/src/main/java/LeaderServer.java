@@ -36,9 +36,21 @@ public class LeaderServer {
         memberThread.start();
         
         try {
-			ServerSocket leaderServerSocket = new ServerSocket(port);
-			clientCommunication(leaderServerSocket.accept(), kvStore);
-			
+        	ServerSocket leaderServerSocket = new ServerSocket(port);
+        	
+        	while(!disconnect.equalsIgnoreCase("exit")){
+        		Socket leaderSocket = leaderServerSocket.accept();
+        		String[] message = clientCommunication(leaderSocket, kvStore);
+        		disconnect = message[3];
+        		if(!disconnect.equalsIgnoreCase("exit")) {
+        			ThreadHandler thread = new ThreadHandler(leaderSocket, message, kvStore, "client", operations);
+        			thread.start();
+        		} 
+
+        	}
+        
+        	leaderServerSocket.close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,27 +95,26 @@ public class LeaderServer {
 //        }
     }
     
-    public static void clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
-
+    public static String[] clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
+    	String[] message = null;
 		try {
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String clientInput = input.readLine();
+			
 			System.out.println(clientInput);
 			
 			out.println("hello client" + port);
 			input.readLine();
-			String[] message = clientInput.split(" ");
-//			if (message[3].equalsIgnoreCase("exit")) {
-//				disconnect = "exit";
-//			} else {
-//				ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
-//				thread.start();
-//			}
+			message = clientInput.split(" ");
+			
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return message;
 		
 
 	}

@@ -16,7 +16,7 @@ public class ThreadHandler extends Thread {
     private String protocolType;
     private DatagramPacket inPacket = null;
     private String response = null;
-	private String type;
+	private String type = null;
 	private ConcurrentHashMap<String, String> operations;
 
     /**
@@ -29,7 +29,6 @@ public class ThreadHandler extends Thread {
     public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type) {
         this.args = args;
         this.kvStore = kvStore;
-        this.protocolType = "tcp";
         this.tcpSocket = tcpSocket;
         this.type = type;
     }
@@ -37,7 +36,6 @@ public class ThreadHandler extends Thread {
     public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type, ConcurrentHashMap<String, String> operations) {
         this.args = args;
         this.kvStore = kvStore;
-        this.protocolType = "tcp";
         this.tcpSocket = tcpSocket;
         this.type = type;
         this.operations = operations;
@@ -66,7 +64,11 @@ public class ThreadHandler extends Thread {
     public void run() {
         try {
         	PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
-        	if (type.equalsIgnoreCase("client")) {
+        	System.out.println(type.contains("client"));
+        	System.out.println(type);
+        	System.out.println(type.length());
+        	if (type.contains("client")) {
+        		
         		String key = null;
                 String value = null;
                 String command = null;

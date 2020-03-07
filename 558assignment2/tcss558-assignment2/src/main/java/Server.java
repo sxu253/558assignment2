@@ -38,15 +38,23 @@ public class Server {
 			ServerSocket clientSocket = new ServerSocket(clientport);
 
 			while (!disconnect.equalsIgnoreCase("exit")) {
+				//LEADER SERVER COMMUNICATION
+				Socket leaderSocket = leaderServerSocket.accept();
+				leaderServerCommunication(leaderSocket, kvStore);
 				
-				System.out.println("client port" + clientport);
-				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
-
-				clientCommunication(clientSocket.accept(), kvStore);
+				//CLIENT COMMUNICATION 
+				Socket client = clientSocket.accept();
+				String[] message = clientCommunication(client, kvStore);
+				disconnect = message[3];
+				if(!disconnect.equalsIgnoreCase("exit")) {
+        			ThreadHandler thread = new ThreadHandler(client, message, kvStore, "client");
+        			thread.start();
+        		} 
 
 			}
-			// clientServerSocket.close();
+			clientSocket.close();
 			leaderServerSocket.close();
+
 
 		} catch (IOException e) {
 			System.out.println("Port not available.");
@@ -76,26 +84,19 @@ public class Server {
 
 	}
 
-	public static void clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
-
+	public static String[] clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
+		String[] message = null;
 		try {
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String clientInput = input.readLine();
 			System.out.println(clientInput);
-			out.println("hello client" + port);
-			input.readLine();
-			String[] message = clientInput.split(" ");
-//			if (message[3].equalsIgnoreCase("exit")) {
-//				disconnect = "exit";
-//			} else {
-//				ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
-//				thread.start();
-//			}
+			message = clientInput.split(" ");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return message;
 		
 
 	}

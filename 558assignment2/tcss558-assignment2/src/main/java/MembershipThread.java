@@ -54,7 +54,7 @@ public class MembershipThread extends Thread {
 			//            members = memberList.split("\n");
 			updateConnections();
 			try {
-				sleep(10000);
+				sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

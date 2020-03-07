@@ -36,17 +36,8 @@ public class GenericNode {
 			// Determines which client type is to be run
 			hostName = args[1];
 			port = Integer.parseInt(args[2]);
-			if (args.length > 3) {
-				task = args[3];
-			}
-			if (args.length > 4) {
-				key = args[4];
-			}
-			if (args.length > 5) {
-				value = args[5];
-			}
 			Client client = new Client();
-			client.runTcpProtocolClient(hostName, port, task, key, value);
+			client.runTcpProtocolClient(hostName, port, args);
 		}
 	}
 }
