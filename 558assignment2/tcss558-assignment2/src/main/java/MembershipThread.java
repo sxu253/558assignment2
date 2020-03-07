@@ -74,7 +74,7 @@ public class MembershipThread extends Thread {
 				System.out.println(port);
 				Socket serveSocket = new Socket(ip, port);
 				PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
-				out.println("hello from leader" + port);
+				out.println("hello from leader!!" + port);
 				BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
 				String clientInput = input.readLine();
 				System.out.println(clientInput);

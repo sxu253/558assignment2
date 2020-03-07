@@ -11,8 +11,9 @@ import java.rmi.registry.Registry;
 /**
  * @author Danielle Lambion
  *
- * Instantiates a TCP server and creates threads to process client requests.
- * This class creates the key-value storage that all client threads manipulate.
+ *         Instantiates a TCP server and creates threads to process client
+ *         requests. This class creates the key-value storage that all client
+ *         threads manipulate.
  */
 public class Server {
 
@@ -28,35 +29,32 @@ public class Server {
 	public static void runTcpProtocolServer(String args[]) {
 		port = Integer.valueOf(args[1]);
 		KeyValueStore kvStore = new KeyValueStore();
+		System.out.println("I am here too!!");
 		try {
-			//ServerSocket clientServerSocket = new ServerSocket(port);
+			System.out.println("I am here!!");
+			// ServerSocket clientServerSocket = new ServerSocket(port);
 			ServerSocket leaderServerSocket = new ServerSocket(port);
 			
-			while(!disconnect.equalsIgnoreCase("exit")){
-				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
-				//Socket clientSocket = clientServerSocket.accept();
-				//PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-				//BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				//String clientInput = input.readLine();
-				//System.out.println(clientInput);
-				//out.println("hello leader");
-				//String[] message = clientInput.split(" ");
-//				if(message[3].equalsIgnoreCase("exit")) {
-//					disconnect = "exit";
-//				} else {
-//					ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
-//					thread.start();
-//				}
-			}
-			//clientServerSocket.close();
-			leaderServerSocket.close();
-		
+			int clientport = port + 10;
 			
-		} catch(IOException e) {
+			//ServerSocket clientSocket = new ServerSocket(clientport);
+
+			while (!disconnect.equalsIgnoreCase("exit")) {
+				
+				System.out.println("client port" + clientport);
+				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
+
+				//clientCommunication(clientSocket.accept());
+
+			}
+			// clientServerSocket.close();
+			leaderServerSocket.close();
+
+		} catch (IOException e) {
 			System.out.println("Port not available.");
 		}
 	}
-	
+
 	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
 		try {
 			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
@@ -67,17 +65,35 @@ public class Server {
 			String[] message = leaderInput.split(" ");
 			if (message[0].equalsIgnoreCase("mem")) {
 				leaderInput.replace("mem ", "");
-			    //members contains active membership
+				// members contains active membership
 				members = leaderInput.split("\n");
-			} 
+			}
 			ThreadHandler thread = new ThreadHandler(leaderServerSocket, message, kvStore, "server");
 			thread.start();
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+	}
+
+	public static void clientCommunication(Socket clientSocket) {
+
+		PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+		BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		String clientInput = input.readLine();
+		System.out.println(clientInput);
+		out.println("hello client" + port);
+		input.readLine();
+		String[] message = clientInput.split(" ");
+		if (message[3].equalsIgnoreCase("exit")) {
+			disconnect = "exit";
+		} else {
+			ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
+			thread.start();
+		}
+
 	}
 
 //	// Implement server side socket for UDP

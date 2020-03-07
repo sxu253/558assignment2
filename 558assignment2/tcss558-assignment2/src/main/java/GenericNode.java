@@ -13,7 +13,7 @@ public class GenericNode {
 
 		// Declare and initialize variables
 		int port;
-		String protocol = null;
+		String protocol = args[0];
 		String hostName = null;
 		String task = null;
 		String key = null;
@@ -21,7 +21,7 @@ public class GenericNode {
 
 		// Determines which server type is to be run
 		if (protocol.equalsIgnoreCase("ts")) {
-			protocol = args[0];
+			
 			port = Integer.parseInt(args[1]);
 			if (port != 4410) {
 				//Server server = new Server();

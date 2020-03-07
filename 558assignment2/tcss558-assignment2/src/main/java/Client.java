@@ -30,21 +30,27 @@ public class Client {
 
 			OutputStream output = socket.getOutputStream();
 			PrintWriter writer = new PrintWriter(output, true);
+			
+			writer.print("hellllo from client!!!!" +port);
+			
+			reader.readLine();
+			
 
-			if (task != null) {
-				writer.println(task + " " + key + " " + value);
-
-				if (task.equalsIgnoreCase("get") || task.equalsIgnoreCase("store") || task.equalsIgnoreCase("exit")) {
-					System.out.println(reader.readLine());
-				}
-
-			} else {
-				System.out.println("uc/tc <address> <port> put <key> <msg> UDP/TCP CLIENT: Put an object into store\n"
-						+ "uc/tc <address> <port> get <key> UDP/TCP CLIENT: Get an object from store by key\n"
-						+ "uc/tc <address> <port> del <key> UDP/TCP CLIENT: Delete an object from store by key\n"
-						+ "uc/tc <address> <port> store UDP/TCP CLIENT: Display object store\n"
-						+ "uc/tc <address> <port> exit UDP/TCP CLIENT: Shutdown server ");
-			}
+			/*
+			 * if (task != null) { writer.println(task + " " + key + " " + value);
+			 * 
+			 * if (task.equalsIgnoreCase("get") || task.equalsIgnoreCase("store") ||
+			 * task.equalsIgnoreCase("exit")) { System.out.println(reader.readLine()); }
+			 * 
+			 * } else { System.out.
+			 * println("uc/tc <address> <port> put <key> <msg> UDP/TCP CLIENT: Put an object into store\n"
+			 * +
+			 * "uc/tc <address> <port> get <key> UDP/TCP CLIENT: Get an object from store by key\n"
+			 * +
+			 * "uc/tc <address> <port> del <key> UDP/TCP CLIENT: Delete an object from store by key\n"
+			 * + "uc/tc <address> <port> store UDP/TCP CLIENT: Display object store\n" +
+			 * "uc/tc <address> <port> exit UDP/TCP CLIENT: Shutdown server "); }
+			 */
 
 		} catch (UnknownHostException ex) {
 
