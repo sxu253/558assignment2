@@ -63,19 +63,20 @@ public class Server {
 
 	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
 		try {
-			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
-			out.println("hello from leaderServerCommunication" + port);
+			
 			BufferedReader input = new BufferedReader(new InputStreamReader(leaderServerSocket.getInputStream()));
 			String leaderInput = input.readLine();
 			System.out.println(leaderInput);
 			String[] message = leaderInput.split(" ");
+			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
+			out.println("hello from leaderServerCommunication" + port);
 			if (message[0].equalsIgnoreCase("mem")) {
 				leaderInput.replace("mem ", "");
 				// members contains active membership
 				members = leaderInput.split("\n");
 			}
-			ThreadHandler thread = new ThreadHandler(leaderServerSocket, message, kvStore, "server");
-			thread.start();
+//			ThreadHandler thread = new ThreadHandler(leaderServerSocket, message, kvStore, "server");
+//			thread.start();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

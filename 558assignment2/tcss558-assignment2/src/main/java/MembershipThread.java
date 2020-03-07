@@ -32,7 +32,7 @@ public class MembershipThread extends Thread {
 		System.out.println("thread started");
 //		ArrayList<String> copyList = new ArrayList<String>();
 		while(true){
-			members.clear();
+//			members.clear();
 			//File file = new File("/tmp/nodes.cfg");
 			File file = new File("nodes.txt");
 			try {
@@ -41,7 +41,9 @@ public class MembershipThread extends Thread {
 					String[] info = (sc.nextLine().split(":"));
 					InetAddress ip = InetAddress.getByName(info[0]);
 					int port = Integer.valueOf(info[1]);
-					members.put(port, ip);
+					if (!members.containsKey(port)) {
+						members.put(port, ip);
+					}
 					//sb.append(sc.nextLine());
 					//sb.append("\n");
 				}
@@ -62,7 +64,7 @@ public class MembershipThread extends Thread {
 			//            members = memberList.split("\n");
 //			updateConnections();
 			try {
-				sleep(5000);
+				sleep(20000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

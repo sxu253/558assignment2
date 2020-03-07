@@ -6,6 +6,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,11 +29,12 @@ public class LeaderServer {
     static ConcurrentHashMap<Integer, InetAddress> members = new ConcurrentHashMap<>();
 //    private static ArrayList<String> members = new ArrayList<String>();
     private static Integer port;
+	private static Socket serveSocket;
 
     public static void runTcpProtocolServer(String args[]) {
         port = Integer.valueOf(args[1]);
         KeyValueStore kvStore = new KeyValueStore();
-
+        readFile();
         MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
         memberThread.start();
         
@@ -43,7 +45,7 @@ public class LeaderServer {
 
         	while(!disconnect.equalsIgnoreCase("exit")){
         		System.out.println("!!!!!starting while leader loop");
-        		Socket leaderSocket = leaderServerSocket.accept();
+        		//        		Socket leaderSocket = leaderServerSocket.accept();
         		//        		String[] message = clientCommunication(leaderSocket, kvStore);
         		//        		System.out.println(message[3]);
         		//        		System.out.println(!message[3].equalsIgnoreCase("exit"));
@@ -51,31 +53,36 @@ public class LeaderServer {
         		//        			ThreadHandler thread = new ThreadHandler(leaderSocket, message, kvStore, "client", operations);
         		//        			thread.start();
         		System.out.println("inbetween in if and for statment");
+        		System.out.println(members.toString());
+        		System.out.println(members.size());
 
-//        		for(Map.Entry mapElement : members.entrySet()) { 
-//        			InetAddress ip = (InetAddress) mapElement.getValue();
-//        			int port = (int) mapElement.getKey();
-//        			Socket serveSocket = new Socket(ip, port);
-//        			PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
-//        			System.out.println("opening sockets " + port);
-//        			out.println("hello from leader!!" + port);
-//        			BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
-//        			String clientInput = input.readLine();
-//        			System.out.println(clientInput);
-//        			String[] serverMessage = clientInput.split(" ");
-//        			ThreadHandler serverThread = new ThreadHandler(leaderSocket, serverMessage, kvStore, "server", operations);
+        		for (Iterator<Entry<Integer, InetAddress>> iterator = members.entrySet().iterator(); iterator.hasNext();) {
+        			Entry<Integer, InetAddress> mapElement = iterator.next();
+        			System.out.println("inside for loop");
+        			InetAddress ip = (InetAddress) mapElement.getValue();
+        			int port = (int) mapElement.getKey();
+        			System.out.println(port);
+        			serveSocket = new Socket(ip, port);
+        			System.out.println("opening sockets " + port);
+        			PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
+        			out.println("hello from leader!!" + port);
+        			BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
+        			String clientInput = input.readLine();
+        			System.out.println(clientInput);
+        			String[] serverMessage = clientInput.split(" ");
+//        			ThreadHandler serverThread = new ThreadHandler(serveSocket, serverMessage, kvStore, "server", operations);
 //        			serverThread.start();
-//        		}
-        		//        		} 
+        			serveSocket.close();
+        		}
 
-        	}
-
+        	} 
+        	
         	leaderServerSocket.close();
 
         } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }
         
 //        System.out.println(members.size());
         
@@ -116,29 +123,51 @@ public class LeaderServer {
 //        }
     }
     
-    public static String[] clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
-    	String[] message = null;
+    public static void readFile() {
+    	File file = new File("nodes.txt");
 		try {
-			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			String clientInput = input.readLine();
-			
-			System.out.println(clientInput);
-			
-			out.println("hello client" + port);
-			input.readLine();
-			message = clientInput.split(" ");
-			
-			
-		} catch (IOException e) {
+			Scanner sc = new Scanner(file);
+			while(sc.hasNextLine()) {
+				String[] info = (sc.nextLine().split(":"));
+				InetAddress ip = InetAddress.getByName(info[0]);
+				int port = Integer.valueOf(info[1]);
+				if (!members.containsKey(port)) {
+					members.put(port, ip);
+				}
+				//sb.append(sc.nextLine());
+				//sb.append("\n");
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return message;
-		
-
-	}
+    }
+    
+//    public static String[] clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
+//    	String[] message = null;
+//		try {
+//			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+//			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//			String clientInput = input.readLine();
+//			
+//			System.out.println(clientInput);
+//			
+//			out.println("hello client" + port);
+//			input.readLine();
+//			message = clientInput.split(" ");
+//			
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		return message;
+//		
+//
+//	}
     
     
 }
