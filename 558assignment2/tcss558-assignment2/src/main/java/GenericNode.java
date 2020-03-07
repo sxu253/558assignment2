@@ -20,7 +20,7 @@ public class GenericNode {
 		String value = null;
 
 		// Determines which server type is to be run
-		if (args.length == 2) {
+		if (protocol.equalsIgnoreCase("ts")) {
 			protocol = args[0];
 			port = Integer.parseInt(args[1]);
 			if (port != 4410) {
