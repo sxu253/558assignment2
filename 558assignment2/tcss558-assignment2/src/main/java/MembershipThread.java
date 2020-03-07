@@ -44,6 +44,7 @@ public class MembershipThread extends Thread {
 					if (!members.containsKey(port)) {
 						members.put(port, ip);
 					}
+					
 					//sb.append(sc.nextLine());
 					//sb.append("\n");
 				}
