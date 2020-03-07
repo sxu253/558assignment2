@@ -26,13 +26,23 @@ public class LeaderServer {
     private static String disconnect = "open";
     static ConcurrentHashMap<String, String> operations = new ConcurrentHashMap<>();
     private static ArrayList<String> members = new ArrayList<String>();
+    private static Integer port;
 
     public static void runTcpProtocolServer(String args[]) {
-        int port = Integer.valueOf(args[1]);
+        port = Integer.valueOf(args[1]);
         KeyValueStore kvStore = new KeyValueStore();
 
         MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
         memberThread.start();
+        
+        try {
+			ServerSocket leaderServerSocket = new ServerSocket(port);
+			clientCommunication(leaderServerSocket.accept(), kvStore);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
 //        System.out.println(members.size());
         
@@ -72,6 +82,31 @@ public class LeaderServer {
 //            System.out.println("Port not available.");
 //        }
     }
+    
+    public static void clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
+
+		try {
+			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			String clientInput = input.readLine();
+			System.out.println(clientInput);
+			
+			out.println("hello client" + port);
+			input.readLine();
+			String[] message = clientInput.split(" ");
+//			if (message[3].equalsIgnoreCase("exit")) {
+//				disconnect = "exit";
+//			} else {
+//				ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
+//				thread.start();
+//			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+	}
     
     
 }

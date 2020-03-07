@@ -24,18 +24,20 @@ public class Client {
 	public void runTcpProtocolClient(String hostName, int port, String task, String key, String value) {
 
 		try (Socket socket = new Socket(hostName, port)) {
-
+			System.out.println("ready to start working");
 			InputStream input = socket.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
 			OutputStream output = socket.getOutputStream();
 			PrintWriter writer = new PrintWriter(output, true);
 			
-			writer.print("hellllo from client!!!!" +port);
+			writer.println("hellllo from client!!!!" +port);
 			
-			reader.readLine();
+			System.out.println(reader.readLine());
 			
-
+			input.close();
+			output.close();
+			socket.close();
 			/*
 			 * if (task != null) { writer.println(task + " " + key + " " + value);
 			 * 

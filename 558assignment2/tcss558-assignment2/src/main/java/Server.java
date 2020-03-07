@@ -29,22 +29,20 @@ public class Server {
 	public static void runTcpProtocolServer(String args[]) {
 		port = Integer.valueOf(args[1]);
 		KeyValueStore kvStore = new KeyValueStore();
-		System.out.println("I am here too!!");
 		try {
-			System.out.println("I am here!!");
 			// ServerSocket clientServerSocket = new ServerSocket(port);
 			ServerSocket leaderServerSocket = new ServerSocket(port);
 			
 			int clientport = port + 10;
 			
-			//ServerSocket clientSocket = new ServerSocket(clientport);
+			ServerSocket clientSocket = new ServerSocket(clientport);
 
 			while (!disconnect.equalsIgnoreCase("exit")) {
 				
 				System.out.println("client port" + clientport);
 				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
 
-				//clientCommunication(clientSocket.accept());
+				clientCommunication(clientSocket.accept(), kvStore);
 
 			}
 			// clientServerSocket.close();
@@ -78,21 +76,27 @@ public class Server {
 
 	}
 
-	public static void clientCommunication(Socket clientSocket) {
+	public static void clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
 
-		PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-		BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		String clientInput = input.readLine();
-		System.out.println(clientInput);
-		out.println("hello client" + port);
-		input.readLine();
-		String[] message = clientInput.split(" ");
-		if (message[3].equalsIgnoreCase("exit")) {
-			disconnect = "exit";
-		} else {
-			ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
-			thread.start();
+		try {
+			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			String clientInput = input.readLine();
+			System.out.println(clientInput);
+			out.println("hello client" + port);
+			input.readLine();
+			String[] message = clientInput.split(" ");
+//			if (message[3].equalsIgnoreCase("exit")) {
+//				disconnect = "exit";
+//			} else {
+//				ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
+//				thread.start();
+//			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 
 	}
 
