@@ -21,34 +21,74 @@ public class LeaderServer {
 //	String value;
 //	String key;
 //	Registry registry;
-    private static int port = 4410;
+    //private static int port = 9090;
+    private static int serverPort = 4410;
     private static String disconnect = "open";
-    ConcurrentHashMap<String, String> operations = new ConcurrentHashMap<>();
-    private static String[] members;
+    static ConcurrentHashMap<String, String> operations = new ConcurrentHashMap<>();
+    private static ArrayList<String> members = new ArrayList<String>();
 
     public static void runTcpProtocolServer(String args[]) {
-//        port = Integer.valueOf(args[1]);
+        int port = Integer.valueOf(args[1]);
         KeyValueStore kvStore = new KeyValueStore();
-        MembershipThread  memberThread = new MembershipThread(members);
-        memberThread.start();
-        try {
-            ServerSocket serv = new ServerSocket(port);
-            while(!disconnect.equalsIgnoreCase("exit")){
-                Socket socket = serv.accept();
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String clientInput = input.readLine();
-                String[] message = clientInput.split(" ");
-                if(message[3].equalsIgnoreCase("exit")) {
-                    disconnect = "exit";
-                } else {
-                    ThreadHandler thread = new ThreadHandler(socket, message, kvStore);
-                    thread.start();
-                }
-            }
-            serv.close();
-        } catch(IOException e) {
-            System.out.println("Port not available.");
-        }
+        try (Socket socket = new Socket("localhost", port)) {
+
+			InputStream input = socket.getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            
+			OutputStream output = socket.getOutputStream();
+			PrintWriter writer = new PrintWriter(output, true);
+			writer.println("helllllo");
+			
+
+		} catch (UnknownHostException ex) {
+
+			System.out.println("Server not found: " + ex.getMessage());
+
+		} catch (IOException ex) {
+
+			System.out.println("I/O error: " + ex.getMessage());
+		}
+//        MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
+//        memberThread.start();
+        
+//        System.out.println(members.size());
+        
+//        try {
+//            ServerSocket clientSocket = new ServerSocket(port);
+//            for(int i = 0; i < members.size()-1; i++) {
+//            	System.out.println(members.get(i));
+//            	
+//            	String[] info = (members.get(i)).split(":");
+//            	
+//            	int ip = Integer.valueOf(info[0]);
+//            	port = Integer.valueOf(info[1]);
+//            	ServerSocket serverSocket = new ServerSocket(port);
+//            	Socket serveSocket = serverSocket.accept();
+//            	PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
+//                BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
+//                String clientInput = input.readLine();
+//                String[] message = clientInput.split(" ");
+//            	ThreadHandler thread = new ThreadHandler(serveSocket, message, kvStore, "leaderServer", operations);
+//                thread.start();
+//            }
+//            while(!disconnect.equalsIgnoreCase("exit")){
+//                Socket socket = clientSocket.accept();
+//                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+//                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//                String clientInput = input.readLine();
+//                String[] message = clientInput.split(" ");
+//                if(message[3].equalsIgnoreCase("exit")) {
+//                    disconnect = "exit";
+//                } else {
+//                    ThreadHandler thread = new ThreadHandler(socket, message, kvStore, "client", operations);
+//                    thread.start();
+//                }
+//            }
+//            clientSocket.close();
+//        } catch(IOException e) {
+//            System.out.println("Port not available.");
+//        }
     }
+    
+    
 }

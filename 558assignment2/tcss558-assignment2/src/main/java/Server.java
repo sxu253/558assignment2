@@ -21,6 +21,7 @@ public class Server {
 //	String key;
 //	Registry registry;
 	private static int port = 9090;
+	private static int leaderPort = 4410;
 	private static String disconnect = "open";
 	private static String[] members;
 
@@ -28,44 +29,71 @@ public class Server {
 		port = Integer.valueOf(args[1]);
 		KeyValueStore kvStore = new KeyValueStore();
 		try {
-			ServerSocket serv = new ServerSocket(port);
+			ServerSocket clientServerSocket = new ServerSocket(port);
+			ServerSocket leaderServerSocket = new ServerSocket(leaderPort);
 			while(!disconnect.equalsIgnoreCase("exit")){
-				Socket socket = serv.accept();
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				leaderServerCommunication(leaderServerSocket.accept(), kvStore);
+				Socket clientSocket = clientServerSocket.accept();
+				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+				BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				String clientInput = input.readLine();
+				System.out.println(clientInput);
+				out.println("hello leader");
 				String[] message = clientInput.split(" ");
 				if(message[3].equalsIgnoreCase("exit")) {
 					disconnect = "exit";
-				} else if (args[0].equalsIgnoreCase("mem")) {
-					clientInput.replace("mem ", "");
-					members = clientInput.split(" ");
 				} else {
-					ThreadHandler thread = new ThreadHandler(socket, message, kvStore);
+					ThreadHandler thread = new ThreadHandler(clientSocket, message, kvStore, "client");
 					thread.start();
 				}
 			}
-			serv.close();
+			clientServerSocket.close();
+			leaderServerSocket.close();
+		
+			
 		} catch(IOException e) {
 			System.out.println("Port not available.");
 		}
 	}
-
-	// Implement server side socket for UDP
-	public void runUdpProtocolServer(int port) throws IOException {
-		// Created socket to listen at specified port
-		try (DatagramSocket ds = new DatagramSocket(port)) {
-			System.out.println("Server is listening on port " + port);
-			byte[] receive = new byte[65535];
-			DatagramPacket DpReceive = null;
-			while (true) {
-				DpReceive = new DatagramPacket(receive, receive.length);
-				ds.receive(DpReceive);
-				System.out.println("Starting a new thread for this client");
-				//ClientThreadHandlerUDP thu = new ClientThreadHandlerUDP(ds, storeMap, DpReceive, receive, "hello");
-				//Thread t = new Thread(thu);
-				//t.start();
-			}
+	
+	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
+		try {
+			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
+			out.println("hello " + port);
+			BufferedReader input = new BufferedReader(new InputStreamReader(leaderServerSocket.getInputStream()));
+			String leaderInput = input.readLine();
+			System.out.println(leaderInput);
+			String[] message = leaderInput.split(" ");
+			if (message[0].equalsIgnoreCase("mem")) {
+				leaderInput.replace("mem ", "");
+			    //members contains active membership
+				members = leaderInput.split("\n");
+			} 
+			ThreadHandler thread = new ThreadHandler(leaderServerSocket, message, kvStore, "server");
+			thread.start();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 	}
+
+//	// Implement server side socket for UDP
+//	public void runUdpProtocolServer(int port) throws IOException {
+//		// Created socket to listen at specified port
+//		try (DatagramSocket ds = new DatagramSocket(port)) {
+//			System.out.println("Server is listening on port " + port);
+//			byte[] receive = new byte[65535];
+//			DatagramPacket DpReceive = null;
+//			while (true) {
+//				DpReceive = new DatagramPacket(receive, receive.length);
+//				ds.receive(DpReceive);
+//				System.out.println("Starting a new thread for this client");
+//				//ClientThreadHandlerUDP thu = new ClientThreadHandlerUDP(ds, storeMap, DpReceive, receive, "hello");
+//				//Thread t = new Thread(thu);
+//				//t.start();
+//			}
+//		}
+//	}
 }

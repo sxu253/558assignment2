@@ -3,6 +3,7 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The thread class that processes separate client commands for the UDP and TCP protocol severs.
@@ -15,6 +16,8 @@ public class ThreadHandler extends Thread {
     private String protocolType;
     private DatagramPacket inPacket = null;
     private String response = null;
+	private String type;
+	private ConcurrentHashMap<String, String> operations;
 
     /**
      * TCP constructor. This constructor requires parameters necessary for processing TCP requests.
@@ -23,11 +26,21 @@ public class ThreadHandler extends Thread {
      * @param args the arguments from the client's message.
      * @param kvStore the key-value store utilized by the TCP server.
      */
-    public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore) {
+    public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type) {
         this.args = args;
         this.kvStore = kvStore;
         this.protocolType = "tcp";
         this.tcpSocket = tcpSocket;
+        this.type = type;
+    }
+    
+    public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type, ConcurrentHashMap<String, String> operations) {
+        this.args = args;
+        this.kvStore = kvStore;
+        this.protocolType = "tcp";
+        this.tcpSocket = tcpSocket;
+        this.type = type;
+        this.operations = operations;
     }
 
     /**
@@ -52,25 +65,57 @@ public class ThreadHandler extends Thread {
      */
     public void run() {
         try {
-            String key = null;
-            String value = null;
-            String command = null;
-            command = args[3].trim();
-            if (args.length > 5) {
-                key = args[4];
-                value = args[5];
-            } else if (args.length > 4) {
-                key = args[4];
-            }
-            if (protocolType.equalsIgnoreCase("tcp")) {
-                PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+        	PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+        	if (type.equalsIgnoreCase("client")) {
+        		String key = null;
+                String value = null;
+                String command = null;
+                command = args[3].trim();
+                if (args.length > 5) {
+                    key = args[4];
+                    value = args[5];
+                } else if (args.length > 4) {
+                    key = args[4];
+                }
                 processTcpConnection(out, command, key, value);
-            } else if (protocolType.equalsIgnoreCase("udp")) {
-                processUdpConnection(command, key, value);
-            }
+        	} else if (type.equalsIgnoreCase("server")) {
+        		processServerConnection(out);
+        	} else {
+        		processLeaderServerConnection(out);
+        	}
+            
+//            if (protocolType.equalsIgnoreCase("tcp")) {
+//                PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+//                processTcpConnection(out, command, key, value);
+//            } else if (protocolType.equalsIgnoreCase("udp")) {
+//                processUdpConnection(command, key, value);
+//            }
         } catch (IOException e) {
             System.out.println(e.toString());
         }
+    }
+    
+    private void processServerConnection(PrintWriter out) {
+    	//handles if not abort 
+    	if (args[0].equalsIgnoreCase("okay") || args[0].equalsIgnoreCase("update")) {
+    		String key = null;
+    		String value = null;
+    		String command = null;
+    		command = args[1];
+    		if (args.length > 3) {
+    			//put
+    			key = args[2];
+    			value = args[3];
+    		} else {
+    			//del
+    			key = args[2];
+    		}
+    		processTcpConnection(out, command, key, value);
+    	}
+    }
+    
+    private void processLeaderServerConnection(PrintWriter out) {
+    	System.out.println("printing from processLeaderServerConnection");
     }
 
     /**

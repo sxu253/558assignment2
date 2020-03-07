@@ -24,26 +24,27 @@ public class GenericNode {
 			protocol = args[0];
 			port = Integer.parseInt(args[1]);
 			if (port != 4410) {
-				Server server = new Server();
-				server.runTcpProtocolServer(port);
+				//Server server = new Server();
+				Server.runTcpProtocolServer(args);
 			} else {
-				LeaderServer leadServer = new LeaderServer();
-				leadServer.runTcpProtocolServer(port);
+				//LeaderServer leadServer = new LeaderServer();
+				LeaderServer.runTcpProtocolServer(args);
 			}
 		}
-		// Determines which client type is to be run
-		hostName = args[1];
-		port = Integer.parseInt(args[2]);
-		if (args.length > 3) {
-			task = args[3];
-		}
-		if (args.length > 4) {
-			key = args[4];
-		}
-		if (args.length > 5) {
-			value = args[5];
-		}
+		
 		if (protocol.equals("tc")) {
+			// Determines which client type is to be run
+			hostName = args[1];
+			port = Integer.parseInt(args[2]);
+			if (args.length > 3) {
+				task = args[3];
+			}
+			if (args.length > 4) {
+				key = args[4];
+			}
+			if (args.length > 5) {
+				value = args[5];
+			}
 			Client client = new Client();
 			client.runTcpProtocolClient(hostName, port, task, key, value);
 		}
