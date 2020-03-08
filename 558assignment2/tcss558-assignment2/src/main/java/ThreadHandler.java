@@ -27,7 +27,6 @@ public class ThreadHandler extends Thread {
      * Constructor for use by servers handling client requests
      *
      * @param tcpSocket the TCP socket on which information is sent out.
-//     * @param args the arguments from the client's message.
      * @param kvStore the key-value store utilized by the TCP server.
      */
     public ThreadHandler(ServerSocket tcpSocket, KeyValueStore kvStore, String type) {
@@ -86,12 +85,11 @@ public class ThreadHandler extends Thread {
      * it as a UDP or TCP request dependent on the protocol type.
      */
     public void run() {
-//            PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
         System.out.println(type.contains("client"));
         System.out.println(type);
         System.out.println(type.length());
         if (type.contains("client")) {
-            processClientConnection();
+            clientCommunication();
             String key = null;
             String value = null;
             String command = null;
@@ -102,23 +100,18 @@ public class ThreadHandler extends Thread {
             } else if (args.length > 4) {
                 key = args[4];
             }
-            //processTcpConnection(out, command, key, value);
+            //editStorage(out, command, key, value);
         } else if (type.equalsIgnoreCase("server")) {
-            processServerConnection();
+            serverToLeaderCommunication();
         } else {
-                processLeaderServerConnection();
+            leaderToServerCommunication();
         }
-
-//            if (protocolType.equalsIgnoreCase("tcp")) {
-//                PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
-//                processTcpConnection(out, command, key, value);
-//            } else if (protocolType.equalsIgnoreCase("udp")) {
-//                processUdpConnection(command, key, value);
-//            }
-
     }
 
-    private void processClientConnection() {
+    /**
+     * Method for servers to process client requests.
+     */
+    private void clientCommunication() {
         String disconnect = "open";
         Socket clientSocket = null;
         try {
@@ -142,59 +135,29 @@ public class ThreadHandler extends Thread {
         }
     }
 
-
-//        try {
-//            while(!disconnect.equalsIgnoreCase("exit")){
-//                serverCommunication();
-//                System.out.println(members.toString());
-//                Socket clientSocket = socket.accept();
-//                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-//                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//                String clientInput = input.readLine();
-//                String[] message = clientInput.split(" ");
-//                if(disconnect.equalsIgnoreCase("exit")) {
-//                    disconnect = "exit";
-//                } else {
-//                    ThreadHandler clientThread = new ThreadHandler(clientSocket, message, kvStore, "client");
-//                    clientThread.start();
-//                }
-//            }
-//            socket.close();
-//        } catch(IOException e) {
-//            System.out.println("Port not available.");
-//        }
-
-    private void processServerConnection() {
+    /**
+     * Method for regular servers to communicate with the leader server.
+     */
+    private void serverToLeaderCommunication() {
         String disconnect = "open";
-        Socket clientSocket = null;
+        Socket servSocket = null;
         try {
-            clientSocket = serverSocket.accept();
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            servSocket = serverSocket.accept();
+            PrintWriter out = new PrintWriter(servSocket.getOutputStream(), true);
+            BufferedReader input = new BufferedReader(new InputStreamReader(servSocket.getInputStream()));
             String clientInput = input.readLine();
             String[] message = clientInput.split(" ");
             out.println("transaction stuff from reg server connection");
+            System.out.println(clientInput);
         } catch (IOException e) {
             System.out.println("Port not available.");
         }
-        //handles if not abort
-//        if (args[0].equalsIgnoreCase("okay") || args[0].equalsIgnoreCase("update")) {
-//            String key = null;
-//            String value = null;
-//            String command = null;
-//            command = args[1];
-//            if (args.length > 3) {
-//                //put
-//                key = args[2];
-//                value = args[3];
-//            } else {
-//                //del
-//                key = args[2];
-//            }
-//            out.println("hello leader");
     }
 
-    private void processLeaderServerConnection() {
+    /**
+     *
+     */
+    private void leaderToServerCommunication() {
         String severInput = null;
         BufferedReader input = null;
         try {
@@ -207,7 +170,7 @@ public class ThreadHandler extends Thread {
         }
         System.out.println(severInput);
         String[] serverMessage = severInput.split(" ");
-        System.out.println("printing from processLeaderServerConnection");
+        System.out.println("printing from leaderToServerCommunication");
     }
 
     /**
@@ -273,7 +236,7 @@ public class ThreadHandler extends Thread {
      * @param key the key if a key was associated with the command or null otherwise.
      * @param value the value if a value was associated with the command or null otherwise.
      */
-    private void processTcpConnection(PrintWriter out, String command, String key, String value) {
+    private void editStorage(PrintWriter out, String command, String key, String value) {
         if (command.contains("put")) {
             kvStore.putKeyValue(key, value);
             String response = "server response:" + command + " key:" + key;

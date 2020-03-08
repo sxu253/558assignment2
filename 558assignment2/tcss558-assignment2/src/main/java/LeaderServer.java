@@ -26,7 +26,6 @@ public class LeaderServer {
     private static String disconnect = "open";
     static ConcurrentHashMap<String, String> operations = new ConcurrentHashMap<>();
     static ConcurrentHashMap<Integer, InetAddress> members = new ConcurrentHashMap<>();
-    //    private static ArrayList<String> members = new ArrayList<String>();
     private static Integer port;
     private static Socket serveSocket;
     private static KeyValueStore kvStore;
@@ -60,8 +59,6 @@ public class LeaderServer {
                 if (!members.containsKey(port)) {
                     members.put(port, ip);
                 }
-                //sb.append(sc.nextLine());
-                //sb.append("\n");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -72,26 +69,9 @@ public class LeaderServer {
     }
 
     public static void clientCommunication(ServerSocket socket, KeyValueStore kvStore) {
-//        try {
-//            while(!disconnect.equalsIgnoreCase("exit")){
         serverCommunication();
-//                System.out.println(members.toString());
-//                Socket clientSocket = socket.accept();
-//                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-//                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//                String clientInput = input.readLine();
-//                String[] message = clientInput.split(" ");
-//                if(disconnect.equalsIgnoreCase("exit")) {
-//                    disconnect = "exit";
-//                } else {
         ThreadHandler clientThread = new ThreadHandler(socket, kvStore, "client");
         clientThread.start();
-//                }
-//            }
-//            socket.close();
-//        } catch(IOException e) {
-//            System.out.println("Port not available.");
-//        }
     }
 
     public static void serverCommunication() {
@@ -101,24 +81,13 @@ public class LeaderServer {
             System.out.println("inside for loop");
             InetAddress ip = (InetAddress) mapElement.getValue();
             int port = (int) mapElement.getKey();
-//            System.out.println(port);
             try {
                 serveSocket = new Socket(ip, port);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//            System.out.println("opening sockets " + port);
-//            PrintWriter out = new PrintWriter(serveSocket.getOutputStream(), true);
-//            out.println("hello from leader!!" + port);
-//            BufferedReader input = new BufferedReader(new InputStreamReader(serveSocket.getInputStream()));
-//            String clientInput = input.readLine();
-//            System.out.println(clientInput);
-//            String[] serverMessage = clientInput.split(" ");
-
             ThreadHandler serverThread = new ThreadHandler(serveSocket, kvStore, "lserver", operations);
             serverThread.start();
-//            serveSocket.close();
-
         }
     }
 }

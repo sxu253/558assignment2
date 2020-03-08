@@ -5,9 +5,6 @@
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.rmi.registry.Registry;
-
 /**
  * @author Danielle Lambion
  *
@@ -30,16 +27,13 @@ public class Server {
 		port = Integer.valueOf(args[1]);
 		KeyValueStore kvStore = new KeyValueStore();
 		try {
-			// ServerSocket clientServerSocket = new ServerSocket(port);
 			ServerSocket leaderServerSocket = new ServerSocket(port);
-
 			int clientport = port + 10;
 			System.out.println(clientport);
 			ServerSocket clientSocket = new ServerSocket(clientport);
 
 			//LEADER SERVER COMMUNICATION
-//			Socket leaderSocket = leaderServerSocket.accept();
-//			leaderServerCommunication(leaderSocket, kvStore);
+			leaderServerCommunication(leaderServerSocket, kvStore);
 
 			clientCommunication(clientSocket, kvStore);
 
@@ -49,47 +43,17 @@ public class Server {
 		}
 	}
 
-	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
-		try {
-			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
-			out.println("hello from leaderServerCommunication" + port);
-			BufferedReader input = new BufferedReader(new InputStreamReader(leaderServerSocket.getInputStream()));
-			String leaderInput = input.readLine();
-			System.out.println(leaderInput);
-			String[] message = leaderInput.split(" ");
+	public static void leaderServerCommunication(ServerSocket leaderServerSocket, KeyValueStore kvStore) {
 			ThreadHandler thread = new ThreadHandler(leaderServerSocket, kvStore, "server");
 			thread.start();
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 	}
 
 	public static void clientCommunication(ServerSocket clientSocket, KeyValueStore kvStore) {
-//        try {
-//            while(!disconnect.equalsIgnoreCase("exit")){
-//                System.out.println(members.toString());
-//                Socket clientSocket = socket.accept();
-//                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-//                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//                String clientInput = input.readLine();
-//                String[] message = clientInput.split(" ");
-//                if(disconnect.equalsIgnoreCase("exit")) {
-//                    disconnect = "exit";
-//                } else {
 		ThreadHandler clientThread = new ThreadHandler(clientSocket, kvStore, "client");
 		clientThread.start();
-//                }
-//            }
-//            socket.close();
-//        } catch(IOException e) {
-//            System.out.println("Port not available.");
-//        }
 	}
-
-
 
 //	// Implement server side socket for UDP
 //	public void runUdpProtocolServer(int port) throws IOException {
