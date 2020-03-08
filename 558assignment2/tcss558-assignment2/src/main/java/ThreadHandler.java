@@ -1,7 +1,10 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -10,30 +13,51 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ThreadHandler extends Thread {
     private Socket tcpSocket = null;
+    private ServerSocket serverSocket = null;
     private DatagramSocket udpSocket = null;
     private KeyValueStore kvStore;
     private String[] args;
     private String protocolType;
     private DatagramPacket inPacket = null;
     private String response = null;
-	private String type = null;
-	private ConcurrentHashMap<String, String> operations;
+    private String type = null;
+    private ConcurrentHashMap<String, String> operations;
 
     /**
-     * TCP constructor. This constructor requires parameters necessary for processing TCP requests.
+     * Constructor for use by servers handling client requests
      *
      * @param tcpSocket the TCP socket on which information is sent out.
-     * @param args the arguments from the client's message.
+//     * @param args the arguments from the client's message.
      * @param kvStore the key-value store utilized by the TCP server.
      */
-    public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type) {
+    public ThreadHandler(ServerSocket tcpSocket, KeyValueStore kvStore, String type) {
+        this.args = args;
+        this.kvStore = kvStore;
+        this.serverSocket = tcpSocket;
+        this.type = type;
+    }
+
+    /**
+     * Constructor designed for use of regular server
+     * @param tcpSocket
+     * @param kvStore
+     * @param type
+     */
+    public ThreadHandler(Socket tcpSocket, KeyValueStore kvStore, String type) {
         this.args = args;
         this.kvStore = kvStore;
         this.tcpSocket = tcpSocket;
         this.type = type;
     }
-    
-    public ThreadHandler(Socket tcpSocket, String args[], KeyValueStore kvStore, String type, ConcurrentHashMap<String, String> operations) {
+
+    /**
+     * Constructor designed for use of the leader server
+     * @param tcpSocket
+     * @param kvStore
+     * @param type
+     * @param operations
+     */
+    public ThreadHandler(Socket tcpSocket, KeyValueStore kvStore, String type, ConcurrentHashMap<String, String> operations) {
         this.args = args;
         this.kvStore = kvStore;
         this.tcpSocket = tcpSocket;
@@ -62,62 +86,128 @@ public class ThreadHandler extends Thread {
      * it as a UDP or TCP request dependent on the protocol type.
      */
     public void run() {
-        try {
-        	PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
-        	System.out.println(type.contains("client"));
-        	System.out.println(type);
-        	System.out.println(type.length());
-        	if (type.contains("client")) {
-        		
-        		String key = null;
-                String value = null;
-                String command = null;
-                command = args[3].trim();
-                if (args.length > 5) {
-                    key = args[4];
-                    value = args[5];
-                } else if (args.length > 4) {
-                    key = args[4];
-                }
-                processTcpConnection(out, command, key, value);
-        	} else if (type.equalsIgnoreCase("server")) {
-        		processServerConnection(out);
-        	} else {
-        		processLeaderServerConnection(out);
-        	}
-            
+//            PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+        System.out.println(type.contains("client"));
+        System.out.println(type);
+        System.out.println(type.length());
+        if (type.contains("client")) {
+            processClientConnection();
+            String key = null;
+            String value = null;
+            String command = null;
+            command = args[3].trim();
+            if (args.length > 5) {
+                key = args[4];
+                value = args[5];
+            } else if (args.length > 4) {
+                key = args[4];
+            }
+            //processTcpConnection(out, command, key, value);
+        } else if (type.equalsIgnoreCase("server")) {
+            processServerConnection();
+        } else {
+                processLeaderServerConnection();
+        }
+
 //            if (protocolType.equalsIgnoreCase("tcp")) {
 //                PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
 //                processTcpConnection(out, command, key, value);
 //            } else if (protocolType.equalsIgnoreCase("udp")) {
 //                processUdpConnection(command, key, value);
 //            }
+
+    }
+
+    private void processClientConnection() {
+        String disconnect = "open";
+        Socket clientSocket = null;
+        try {
+            while (!disconnect.equalsIgnoreCase("exit")) {
+                clientSocket = serverSocket.accept();
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                String clientInput = input.readLine();
+                String[] message = clientInput.split(" ");
+                System.out.println(clientInput);
+                if (disconnect.equalsIgnoreCase("exit")) {
+                    disconnect = "exit";
+                } else {
+                    System.out.println("hello");
+                    out.println("transaction stuff in client connection");
+                }
+            }
+            clientSocket.close();
         } catch (IOException e) {
-            System.out.println(e.toString());
+            System.out.println("Port not available.");
         }
     }
-    
-    private void processServerConnection(PrintWriter out) {
-    	//handles if not abort 
-    	if (args[0].equalsIgnoreCase("okay") || args[0].equalsIgnoreCase("update")) {
-    		String key = null;
-    		String value = null;
-    		String command = null;
-    		command = args[1];
-    		if (args.length > 3) {
-    			//put
-    			key = args[2];
-    			value = args[3];
-    		} else {
-    			//del
-    			key = args[2];
-    		}
-    		processTcpConnection(out, command, key, value);
-    	}
+
+
+//        try {
+//            while(!disconnect.equalsIgnoreCase("exit")){
+//                serverCommunication();
+//                System.out.println(members.toString());
+//                Socket clientSocket = socket.accept();
+//                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+//                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//                String clientInput = input.readLine();
+//                String[] message = clientInput.split(" ");
+//                if(disconnect.equalsIgnoreCase("exit")) {
+//                    disconnect = "exit";
+//                } else {
+//                    ThreadHandler clientThread = new ThreadHandler(clientSocket, message, kvStore, "client");
+//                    clientThread.start();
+//                }
+//            }
+//            socket.close();
+//        } catch(IOException e) {
+//            System.out.println("Port not available.");
+//        }
+
+    private void processServerConnection() {
+        String disconnect = "open";
+        Socket clientSocket = null;
+        try {
+            clientSocket = serverSocket.accept();
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String clientInput = input.readLine();
+            String[] message = clientInput.split(" ");
+            out.println("transaction stuff from reg server connection");
+        } catch (IOException e) {
+            System.out.println("Port not available.");
+        }
+        //handles if not abort
+//        if (args[0].equalsIgnoreCase("okay") || args[0].equalsIgnoreCase("update")) {
+//            String key = null;
+//            String value = null;
+//            String command = null;
+//            command = args[1];
+//            if (args.length > 3) {
+//                //put
+//                key = args[2];
+//                value = args[3];
+//            } else {
+//                //del
+//                key = args[2];
+//            }
+//            out.println("hello leader");
     }
-    
-    private void processLeaderServerConnection(PrintWriter out) {
-    	System.out.println("printing from processLeaderServerConnection");
+
+    private void processLeaderServerConnection() {
+        String severInput = null;
+        BufferedReader input = null;
+        try {
+            PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
+            out.println("hello from leader!!");
+            input = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
+            severInput = input.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(severInput);
+        String[] serverMessage = severInput.split(" ");
+        System.out.println("printing from processLeaderServerConnection");
     }
 
     /**

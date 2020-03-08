@@ -13,68 +13,65 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MembershipThread extends Thread {
-	private ConcurrentHashMap<Integer, InetAddress> members;
-	private Scanner sc;
-	private KeyValueStore kvStore;
-	private ConcurrentHashMap<String, String> operations;
-	private int port;
+    private ConcurrentHashMap<Integer, InetAddress> members;
+    private Scanner sc;
+    private KeyValueStore kvStore;
+    private ConcurrentHashMap<String, String> operations;
+    private int port;
 
-	public MembershipThread(ConcurrentHashMap<Integer, InetAddress> members, KeyValueStore kvStore, ConcurrentHashMap<String, String> operations, int port) {
-		this.members = members;
-		this.kvStore = kvStore;
-		this.operations = operations;
-		this.port = port;
-	}
+    public MembershipThread(ConcurrentHashMap<Integer, InetAddress> members, KeyValueStore kvStore, ConcurrentHashMap<String, String> operations, int port) {
+        this.members = members;
+        this.kvStore = kvStore;
+        this.operations = operations;
+        this.port = port;
+    }
 
 
 
-	public void run() {
-		System.out.println("thread started");
+    public void run() {
+        System.out.println("thread started");
 //		ArrayList<String> copyList = new ArrayList<String>();
-		while(true){
-//			members.clear();
-			//File file = new File("/tmp/nodes.cfg");
-			File file = new File("nodes.txt");
-			try {
-				sc = new Scanner(file);
-				while(sc.hasNextLine()) {
-					String[] info = (sc.nextLine().split(":"));
-					InetAddress ip = InetAddress.getByName(info[0]);
-					int port = Integer.valueOf(info[1]);
-					if (!members.containsKey(port)) {
-						members.put(port, ip);
-					}
-					
-					//sb.append(sc.nextLine());
-					//sb.append("\n");
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
+        while(true){
+            members.clear();
+            //File file = new File("/tmp/nodes.cfg");
+            File file = new File("nodes.txt");
+            try {
+                sc = new Scanner(file);
+                while(sc.hasNextLine()) {
+                    String[] info = (sc.nextLine().split(":"));
+                    InetAddress ip = InetAddress.getByName(info[0]);
+                    int port = Integer.valueOf(info[1]);
+                    members.put(port, ip);
+                    //sb.append(sc.nextLine());
+                    //sb.append("\n");
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 //			ArrayList<String> clone = (ArrayList<String>) members.clone();
 //			copyList = clone;
-			catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-			//            String memberList = sb.toString();
+            catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+
+            //            String memberList = sb.toString();
 
 //			System.out.println(members.toString());
-			//            members = memberList.split("\n");
+            //            members = memberList.split("\n");
 //			updateConnections();
-			try {
-				sleep(20000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+            try {
+                sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 //	public void updateConnections() {
 //		System.out.println("inside updateConnections");
 //		for(int i = 0; i < members.size()-1; i++) {
-//			
+//
 //			try {
 //				System.out.println(members.get(i));
 //				String[] info = (members.get(i)).split(":");
@@ -96,7 +93,7 @@ public class MembershipThread extends Thread {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-//			
+//
 //		}
 //	}
 }

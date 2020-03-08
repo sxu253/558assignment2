@@ -1,67 +1,46 @@
-
-/*Asmita Singla
- *Sonia Xu
- *558 Applied Distributed Systems - Assignment 1 
- */
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-
+/**
+ * This class instantiates a TCP client that sends commands to a TCP server.
+ */
 public class Client {
-
-	// Implement client side socket for TCP
-	public void runTcpProtocolClient(String hostName, int port, String[] args) {
-
-		try (Socket socket = new Socket(hostName, port)) {
-			System.out.println("ready to start working");
-			InputStream input = socket.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			OutputStream output = socket.getOutputStream();
-			
-			PrintWriter writer = new PrintWriter(output, true);
-			
-			String message = String.join(" ", args);
-			writer.println(message);
-			System.out.println(reader.readLine());
-			
+	/**
+	 * This method is called by GenericNode to start a TCP client with connection to a specified TCP server.
+	 * @param args the command line arguments.
+	 */
+	public static void start(String args[]) {
+		String ipAddr = args[1];
+		int port = Integer.valueOf(args[2]);
+		String cmd = args[3];
+		String disconnect = "open";
+		String message = String.join(" ", args);
+		try {
+			InetAddress serverAddr = InetAddress.getByName(ipAddr);
+			Socket socket = new Socket(serverAddr, port);
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			out.println(message);
+			String response = null;
+			StringBuilder sb = new StringBuilder();
+			response = input.readLine();
+			System.out.println(response);
 			input.close();
-			output.close();
+			out.close();
 			socket.close();
-			/*
-			 * if (task != null) { writer.println(task + " " + key + " " + value);
-			 * 
-			 * if (task.equalsIgnoreCase("get") || task.equalsIgnoreCase("store") ||
-			 * task.equalsIgnoreCase("exit")) { System.out.println(reader.readLine()); }
-			 * 
-			 * } else { System.out.
-			 * println("uc/tc <address> <port> put <key> <msg> UDP/TCP CLIENT: Put an object into store\n"
-			 * +
-			 * "uc/tc <address> <port> get <key> UDP/TCP CLIENT: Get an object from store by key\n"
-			 * +
-			 * "uc/tc <address> <port> del <key> UDP/TCP CLIENT: Delete an object from store by key\n"
-			 * + "uc/tc <address> <port> store UDP/TCP CLIENT: Display object store\n" +
-			 * "uc/tc <address> <port> exit UDP/TCP CLIENT: Shutdown server "); }
-			 */
-
-		} catch (UnknownHostException ex) {
-
-			System.out.println("Server not found: " + ex.getMessage());
-
-		} catch (IOException ex) {
-
-			System.out.println("I/O error: " + ex.getMessage());
+		} catch(UnknownHostException ue) {
+			System.out.println(ue.toString());
+		} catch(IOException ie) {
+			System.out.println(ie.toString());
+		} catch(IllegalArgumentException ae) {
+			System.out.println(ae.toString());
+		} catch(Exception e) {
+			System.out.println(e.toString());
 		}
-
 	}
 }

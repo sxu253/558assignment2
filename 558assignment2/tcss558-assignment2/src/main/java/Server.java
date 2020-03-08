@@ -1,6 +1,6 @@
 /*Asmita Singla
  *Sonia Xu
- *558 Applied Distributed Systems - Assignment 1 
+ *558 Applied Distributed Systems - Assignment 1
  */
 
 import java.io.*;
@@ -32,28 +32,16 @@ public class Server {
 		try {
 			// ServerSocket clientServerSocket = new ServerSocket(port);
 			ServerSocket leaderServerSocket = new ServerSocket(port);
-			
+
 			int clientport = port + 10;
-			
+			System.out.println(clientport);
 			ServerSocket clientSocket = new ServerSocket(clientport);
 
-			while (!disconnect.equalsIgnoreCase("exit")) {
-				//LEADER SERVER COMMUNICATION
-				Socket leaderSocket = leaderServerSocket.accept();
-				leaderServerCommunication(leaderSocket, kvStore);
-				
-				//CLIENT COMMUNICATION 
-				Socket client = clientSocket.accept();
-				String[] message = clientCommunication(client, kvStore);
-				disconnect = message[3];
-				if(!disconnect.equalsIgnoreCase("exit")) {
-        			ThreadHandler thread = new ThreadHandler(client, message, kvStore, "client");
-        			thread.start();
-        		} 
+			//LEADER SERVER COMMUNICATION
+//			Socket leaderSocket = leaderServerSocket.accept();
+//			leaderServerCommunication(leaderSocket, kvStore);
 
-			}
-			clientSocket.close();
-			leaderServerSocket.close();
+			clientCommunication(clientSocket, kvStore);
 
 
 		} catch (IOException e) {
@@ -63,20 +51,14 @@ public class Server {
 
 	public static void leaderServerCommunication(Socket leaderServerSocket, KeyValueStore kvStore) {
 		try {
-			
+			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
+			out.println("hello from leaderServerCommunication" + port);
 			BufferedReader input = new BufferedReader(new InputStreamReader(leaderServerSocket.getInputStream()));
 			String leaderInput = input.readLine();
 			System.out.println(leaderInput);
 			String[] message = leaderInput.split(" ");
-			PrintWriter out = new PrintWriter(leaderServerSocket.getOutputStream(), true);
-			out.println("hello from leaderServerCommunication" + port);
-			if (message[0].equalsIgnoreCase("mem")) {
-				leaderInput.replace("mem ", "");
-				// members contains active membership
-				members = leaderInput.split("\n");
-			}
-//			ThreadHandler thread = new ThreadHandler(leaderServerSocket, message, kvStore, "server");
-//			thread.start();
+			ThreadHandler thread = new ThreadHandler(leaderServerSocket, kvStore, "server");
+			thread.start();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -85,22 +67,29 @@ public class Server {
 
 	}
 
-	public static String[] clientCommunication(Socket clientSocket, KeyValueStore kvStore) {
-		String[] message = null;
-		try {
-			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			String clientInput = input.readLine();
-			System.out.println(clientInput);
-			message = clientInput.split(" ");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return message;
-		
-
+	public static void clientCommunication(ServerSocket clientSocket, KeyValueStore kvStore) {
+//        try {
+//            while(!disconnect.equalsIgnoreCase("exit")){
+//                System.out.println(members.toString());
+//                Socket clientSocket = socket.accept();
+//                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+//                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//                String clientInput = input.readLine();
+//                String[] message = clientInput.split(" ");
+//                if(disconnect.equalsIgnoreCase("exit")) {
+//                    disconnect = "exit";
+//                } else {
+		ThreadHandler clientThread = new ThreadHandler(clientSocket, kvStore, "client");
+		clientThread.start();
+//                }
+//            }
+//            socket.close();
+//        } catch(IOException e) {
+//            System.out.println("Port not available.");
+//        }
 	}
+
+
 
 //	// Implement server side socket for UDP
 //	public void runUdpProtocolServer(int port) throws IOException {

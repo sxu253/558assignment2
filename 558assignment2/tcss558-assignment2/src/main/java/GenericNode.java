@@ -1,7 +1,6 @@
-
 /*Asmita Singla
  *Sonia Xu
- *558 Applied Distributed Systems - Assignment 1 
+ *558 Applied Distributed Systems - Assignment 1
  *This program takes in CLI arguments, and establishes TCP, UDP, or RMI connections.
  */
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class GenericNode {
 
 		// Determines which server type is to be run
 		if (protocol.equalsIgnoreCase("ts")) {
-			
+
 			port = Integer.parseInt(args[1]);
 			if (port != 4410) {
 				//Server server = new Server();
@@ -31,13 +30,13 @@ public class GenericNode {
 				LeaderServer.runTcpProtocolServer(args);
 			}
 		}
-		
+
 		if (protocol.equals("tc")) {
 			// Determines which client type is to be run
 			hostName = args[1];
 			port = Integer.parseInt(args[2]);
-			Client client = new Client();
-			client.runTcpProtocolClient(hostName, port, args);
+//			Client client = new Client();
+			Client.start(args);
 		}
 	}
 }
