@@ -45,50 +45,6 @@ public class ThreadHandler extends Thread {
     }
 
     /**
-     * Constructor designed for use of regular server
-     * @param tcpSocket
-     * @param kvStore
-     * @param type
-     */
-//    public ThreadHandler(Socket tcpSocket, KeyValueStore kvStore, String type) {
-//        this.args = args;
-//        this.kvStore = kvStore;
-//        this.tcpSocket = tcpSocket;
-//        this.type = type;
-//    }
-
-    /**
-     * Constructor designed for use of the leader server
-     * @param tcpSocket
-     * @param kvStore
-     * @param type
-     * @param operations
-     */
-//    public ThreadHandler(Socket tcpSocket, KeyValueStore kvStore, String type, ConcurrentHashMap<String, String> operations) {
-//        this.args = args;
-//        this.kvStore = kvStore;
-//        this.tcpSocket = tcpSocket;
-//        this.type = type;
-//        this.operations = operations;
-//    }
-
-    /**
-     * UDP constructor. This constructor requires parameters necessary for processing UDP requests.
-     *
-     * @param udpSocket the socket on which information is sent out.
-     * @param args the arguments from the client's message.
-     * @param kvStore the key-value store utilized by the TCP server.
-     * @param inPacket the packet received from the client.
-     */
-//    public ClientThread(DatagramSocket udpSocket, String args[], KeyValueStore kvStore, DatagramPacket inPacket) {
-//        this.args = args;
-//        this.kvStore = kvStore;
-//        this.udpSocket = udpSocket;
-//        this.protocolType = "udp";
-//        this.inPacket = inPacket;
-//    }
-
-    /**
      * The method that runs the thread. This method extract information from the client's request. Then it processes
      * it as a UDP or TCP request dependent on the protocol type.
      */
@@ -132,7 +88,7 @@ public class ThreadHandler extends Thread {
                 forwardCommand(clientInput);
 //                out.println("Verifying request");
                 //check replies here and do appropriate behavior
-                while(replies.size() != members.size()-1){
+                while(replies.size() != members.size()){
                     try {
                         sleep(200);
                     } catch (InterruptedException e) {
@@ -144,6 +100,7 @@ public class ThreadHandler extends Thread {
                 if(replies.containsValue("abort")) {
                     System.out.println("return info to client");
                     out.println("abort");
+                    replies.clear();
                 }
 
 //                out.println(response);

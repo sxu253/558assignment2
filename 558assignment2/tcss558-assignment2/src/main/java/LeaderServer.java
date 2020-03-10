@@ -36,8 +36,6 @@ public class LeaderServer {
         members.remove(port);
 //        MembershipThread memberThread = new MembershipThread(members, kvStore, operations, port);
 //        memberThread.start();
-
-
         try {
             ServerSocket leaderServerSocket = new ServerSocket(port);
             ServerSocket clientSocket = new ServerSocket(port + 10);
@@ -77,15 +75,15 @@ public class LeaderServer {
     }
 
     public static void serverCommunication() {
+        System.out.println("sever comm. method in leader server begins");
+        System.out.println("members:"+members.toString());
         for (Iterator<Map.Entry<Integer, InetAddress>> iterator = members.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<Integer, InetAddress> mapElement = iterator.next();
             InetAddress ip = (InetAddress) mapElement.getValue();
             int memberPort = (int) mapElement.getKey();
-//            if (memberPort != port) {
-                System.out.println(memberPort);
-                ServerCommunicationThread thread = new ServerCommunicationThread(ip, memberPort, "casting votes");
-                thread.start();
-//            }
+            System.out.println("Thread spawn for: "+memberPort+" listening");
+            ServerCommunicationThread thread = new ServerCommunicationThread(ip, memberPort, "casting votes");
+            thread.start();
         }
     }
 }

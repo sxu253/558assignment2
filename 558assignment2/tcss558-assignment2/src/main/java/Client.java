@@ -26,6 +26,7 @@ public class Client {
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out.println(message);
+			System.out.println("Client messsage sent: "+message);
 			String response = null;
 			StringBuilder sb = new StringBuilder();
 			response = input.readLine();

@@ -14,7 +14,7 @@ public class ServerCommunicationThread extends Thread {
     private static int serverPort;
     private static Socket serverSocket;
     private static InetAddress ip;
-    private static int memberPort;
+    private static volatile int memberPort;
     private static String clientInput;
     private static String type;
     private static ServerSocket socket;
@@ -47,6 +47,7 @@ public class ServerCommunicationThread extends Thread {
     }
 
     private void forwardCommand() {
+        System.out.println("forward command");
         String serverInput = null;
         BufferedReader input;
         try {
@@ -67,12 +68,14 @@ public class ServerCommunicationThread extends Thread {
         System.out.println("server input in forward command: " + serverInput);
         //add checking for okay and do storage changes
         String[] serverMessage = serverInput.split(" ");
-        System.out.println("printing from forwardcommand");
+        System.out.println("printing from end of forwardcommand");
     }
 
     public static void serverCommunication() {
-        setupConnection(ip, memberPort);
-        System.out.println("passed connection");
+        System.out.println("polling for info from: "+memberPort);
+        //THIS IS WHERE THINGS GO WRONG
+        setupConnection();
+        System.out.println("passed connection on port: "+memberPort);
         String serverInput = null;
         String disconnect = "open";
         BufferedReader input;
@@ -90,12 +93,17 @@ public class ServerCommunicationThread extends Thread {
         }
     }
 
-    public static void setupConnection(InetAddress ip, int memberPort) {
-        try {
-            serverSocket = new Socket(ip, memberPort);
-        } catch (IOException e) {
-            System.out.println("port is unavailable");
-            setupConnection(ip, memberPort);
+    public static void setupConnection() {
+        Boolean attemptConnect = true;
+        while(attemptConnect) {
+            try {
+                System.out.println("port inside set up connection: " + memberPort);
+                serverSocket = new Socket(ip, memberPort);
+                attemptConnect = false;
+            } catch (IOException e) {
+                System.out.println("port is unavailable");
+                attemptConnect = true;
+            }
         }
     }
 }
