@@ -22,13 +22,13 @@ public class GenericNode {
 		if (protocol.equalsIgnoreCase("ts")) {
 
 			port = Integer.parseInt(args[1]);
-			if (port != 4410) {
-				//Server server = new Server();
-				Server.runTcpProtocolServer(args);
-			} else {
-				//LeaderServer leadServer = new LeaderServer();
-				LeaderServer.runTcpProtocolServer(args);
-			}
+//			if (port != 4410) {
+//				//Server server = new Server();
+//				Server.runTcpProtocolServer(args);
+//			} else {
+			//LeaderServer leadServer = new LeaderServer();
+			LeaderServer.runTcpProtocolServer(args);
+//			}
 		}
 
 		if (protocol.equals("tc")) {

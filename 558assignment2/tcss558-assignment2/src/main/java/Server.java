@@ -36,23 +36,19 @@ public class Server {
 			leaderServerCommunication(leaderServerSocket, kvStore);
 
 			clientCommunication(clientSocket, kvStore);
-
-
 		} catch (IOException e) {
 			System.out.println("Port not available.");
 		}
 	}
 
 	public static void leaderServerCommunication(ServerSocket leaderServerSocket, KeyValueStore kvStore) {
-			ThreadHandler thread = new ThreadHandler(leaderServerSocket, kvStore, "server");
-			thread.start();
-
-
+//			ThreadHandler thread = new ThreadHandler(leaderServerSocket, kvStore, "server");
+//			thread.start();
 	}
 
 	public static void clientCommunication(ServerSocket clientSocket, KeyValueStore kvStore) {
-		ThreadHandler clientThread = new ThreadHandler(clientSocket, kvStore, "client");
-		clientThread.start();
+//		ThreadHandler clientThread = new ThreadHandler(clientSocket, kvStore, "client");
+//		clientThread.start();
 	}
 
 //	// Implement server side socket for UDP

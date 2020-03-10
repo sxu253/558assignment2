@@ -6,7 +6,6 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,14 +33,15 @@ public class LeaderServer {
         port = Integer.valueOf(args[1]);
         kvStore = new KeyValueStore();
         readFile();
-        MembershipThread  memberThread = new MembershipThread(members, kvStore ,operations, port);
+        MembershipThread memberThread = new MembershipThread(members, kvStore, operations, port);
         memberThread.start();
 
 
         try {
             ServerSocket leaderServerSocket = new ServerSocket(port);
-            clientCommunication(leaderServerSocket, kvStore);
-        }catch (IOException e) {
+            ServerSocket clientSocket = new ServerSocket(port + 10);
+            clientCommunication(leaderServerSocket, clientSocket, kvStore);
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -52,14 +52,15 @@ public class LeaderServer {
         File file = new File("nodes.txt");
         try {
             Scanner sc = new Scanner(file);
-            while(sc.hasNextLine()) {
+            while (sc.hasNextLine()) {
                 String[] info = (sc.nextLine().split(":"));
                 InetAddress ip = InetAddress.getByName(info[0]);
-                int port = Integer.valueOf(info[1]);
-                if (!members.containsKey(port)) {
-                    members.put(port, ip);
+                int memberPort = Integer.valueOf(info[1]);
+                if (!members.containsKey(memberPort)) {
+                    members.put(memberPort, ip);
                 }
             }
+            System.out.println(members.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -68,26 +69,22 @@ public class LeaderServer {
         }
     }
 
-    public static void clientCommunication(ServerSocket socket, KeyValueStore kvStore) {
-        serverCommunication();
-        ThreadHandler clientThread = new ThreadHandler(socket, kvStore, "client");
+    public static void clientCommunication(ServerSocket socket, ServerSocket clientSocket, KeyValueStore kvStore) {
+        ThreadHandler clientThread = new ThreadHandler(socket, clientSocket, kvStore, "client", members, port);
         clientThread.start();
+        serverCommunication();
     }
 
     public static void serverCommunication() {
-        System.out.println(members.toString());
-        for (Iterator<Entry<Integer, InetAddress>> iterator = members.entrySet().iterator(); iterator.hasNext();) {
-            Entry<Integer, InetAddress> mapElement = iterator.next();
-            System.out.println("inside for loop");
+        for (Iterator<Map.Entry<Integer, InetAddress>> iterator = members.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<Integer, InetAddress> mapElement = iterator.next();
             InetAddress ip = (InetAddress) mapElement.getValue();
-            int port = (int) mapElement.getKey();
-            try {
-                serveSocket = new Socket(ip, port);
-            } catch (IOException e) {
-                e.printStackTrace();
+            int memberPort = (int) mapElement.getKey();
+            if (memberPort != port) {
+                System.out.println(memberPort);
+                ServerCommunicationThread thread = new ServerCommunicationThread(ip, memberPort, "casting votes");
+                thread.start();
             }
-            ThreadHandler serverThread = new ThreadHandler(serveSocket, kvStore, "lserver", operations);
-            serverThread.start();
         }
     }
 }
