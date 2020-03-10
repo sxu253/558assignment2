@@ -33,8 +33,9 @@ public class LeaderServer {
         port = Integer.valueOf(args[1]);
         kvStore = new KeyValueStore();
         readFile();
-        MembershipThread memberThread = new MembershipThread(members, kvStore, operations, port);
-        memberThread.start();
+        members.remove(port);
+//        MembershipThread memberThread = new MembershipThread(members, kvStore, operations, port);
+//        memberThread.start();
 
 
         try {
@@ -80,11 +81,11 @@ public class LeaderServer {
             Map.Entry<Integer, InetAddress> mapElement = iterator.next();
             InetAddress ip = (InetAddress) mapElement.getValue();
             int memberPort = (int) mapElement.getKey();
-            if (memberPort != port) {
+//            if (memberPort != port) {
                 System.out.println(memberPort);
                 ServerCommunicationThread thread = new ServerCommunicationThread(ip, memberPort, "casting votes");
                 thread.start();
-            }
+//            }
         }
     }
 }

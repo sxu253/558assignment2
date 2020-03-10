@@ -162,12 +162,12 @@ public class ThreadHandler extends Thread {
             Map.Entry<Integer, InetAddress> mapElement = iterator.next();
             InetAddress ip = (InetAddress) mapElement.getValue();
             int port = (int) mapElement.getKey();
-            if(serverPort != port){
+//            if(serverPort != port){
                 System.out.println("vote: "+port);
                 ServerCommunicationThread thread = new ServerCommunicationThread(tcpSocket, clientInput, ip, port,
                         "collect votes", replies);
                 thread.start();
-            }
+//            }
         }
     }
 
