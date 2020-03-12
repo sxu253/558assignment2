@@ -1,11 +1,11 @@
 /**
  * TCSS 558
- * Assignment 1
- * @author Danielle Lambion
+ * Assignment 2
+ * @author Danielle Lambion, Sonia Xu, Asmita Singla
  * @since 2020-02-05
  *
- * Generic node class creates either a TCP client, TCP server, UDP client, UDP server, RMI Client, or RMI Server
- * depending on command line specification. This class contains the main method that drives the rest of the program.
+ * Generic node class creates either a TCP client or TCP server depending on command line specification. This class
+ * contains the main method that drives the rest of the program.
 */
 public class GenericNode {
     public static void main(String args[]) throws Exception {

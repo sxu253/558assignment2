@@ -27,6 +27,8 @@ public class TcpServer {
         port = Integer.valueOf(args[1]);
         readFile();
         members.remove(port);
+        MembershipThread memThread = new MembershipThread(members, port);
+        memThread.start();
         KeyValueStore kvStore = new KeyValueStore();
         try {
             ServerSocket serv = new ServerSocket(port);
@@ -53,6 +55,10 @@ public class TcpServer {
         }
     }
 
+    /**
+     * Called to intialize the membership data structure once when the server boots.
+     * Reads the membership file and stores the members in the ConcurrentHashMap data structure.
+     */
     public static void readFile() {
         File file = new File("nodes.cfg");
         try {

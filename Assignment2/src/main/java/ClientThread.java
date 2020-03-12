@@ -31,6 +31,9 @@ public class ClientThread extends Thread {
      * @param tcpSocket the TCP socket on which information is sent out.
      * @param args the arguments from the client's message.
      * @param kvStore the key-value store utilized by the TCP server.
+     * @param members the other server nodes in the network stored as key-value pairs, where the port is the key andd
+     *                the ip address is the value
+     * @param operations the keys currently being operated on by other transactions in the local key value store
      */
     public ClientThread(Socket tcpSocket, String args[], KeyValueStore kvStore,
                         ConcurrentHashMap<Integer, InetAddress> members, ConcurrentHashMap<String, String> operations) {
@@ -50,23 +53,19 @@ public class ClientThread extends Thread {
         try {
             String key = null;
             String value = null;
-                String command = null;
-                if (args.length == 1) {
-                    command = args[0];
-                    System.out.println(command);
-                }
-                if (args.length > 3) {
-                    command = args[3];
-                }
-                if (args.length > 5) {
-                    key = args[4];
-                    value = args[5];
-                    command = args[3];
-                    System.out.println(command);
-                } else if (args.length > 4) {
-                    key = args[4];
-                    command = args[3];
+            String command = null;
+            if (args.length > 5) {
+                key = args[4];
+                value = args[5];
+                command = args[3];
                 System.out.println(command);
+            } else if (args.length > 4) {
+                key = args[4];
+                command = args[3];
+                System.out.println(command);
+
+            } else if (args.length > 3) {
+                command = args[3];
             }
             if (protocolType.equalsIgnoreCase("tcp")) {
                 PrintWriter out = new PrintWriter(tcpSocket.getOutputStream(), true);
@@ -127,7 +126,6 @@ public class ClientThread extends Thread {
             if(operations.containsKey(key)) {
                 out.println("dputabort");
             } else {
-//                serverCommunication(key, value, "dput2");
                 out.println("okay");
             }
             //DPUT2
@@ -136,16 +134,11 @@ public class ClientThread extends Thread {
             kvStore.putKeyValue(key, value);
             out.println("put " + key + " " + value);
             operations.remove(key);
-            //DPUTABORT
-        } else if (command.equalsIgnoreCase("dputabort")) {
-            out.println("Transaction was aborted.");
-            System.out.println("Dput abort if block was triggered");
             //DDEL1
         } else if (command.equalsIgnoreCase("ddel1")) {
             if(operations.containsKey(key)) {
                 out.println("ddelabort");
             } else {
-//                serverCommunication(key, value, "ddel2");
                 out.println("okay");
             }
         } else if (command.equalsIgnoreCase("ddel2")) {
@@ -153,14 +146,19 @@ public class ClientThread extends Thread {
             kvStore.deleteKey(key);
             out.println("del " + key + " " + value);
             operations.remove(key);
-            //DDELABORT
-        } else if (command.equalsIgnoreCase("ddelabort")) {
-            out.println("Transaction was aborted.");
-            System.out.println("Ddel abort if block was triggered");
         }
         out.close();
     }
 
+    /**
+     * Server communication allows to send dput1/ddel1 and dput2/ddel2 to the other server nodes in the network.
+     * This method also receives the voting responses from other servers in the network.
+     *
+     * @param key the key to be edited the key value store
+     * @param value the value to be stored if the client command was 'put', otherwise null is passed
+     * @param command the command to be sent to the other network servers (dput1/dput2/ddel1/ddel2)
+     * @return returns an ArrayList containing the responses of the network servers
+     */
     private ArrayList<String> serverCommunication(String key, String value, String command) {
         System.out.println("Inside server communication: "+command);
         ArrayList<String> replies = new ArrayList<>();
