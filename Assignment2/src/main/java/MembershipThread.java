@@ -23,18 +23,21 @@ public class MembershipThread extends Thread {
     }
 
     public void run() {
-        System.out.println("thread started");
+        ConcurrentHashMap<Integer, InetAddress> newMembers = new ConcurrentHashMap<>();
         while (true) {
             File file = new File("nodes.cfg");
             try {
                 sc = new Scanner(file);
+                if(!newMembers.isEmpty())
+                    newMembers.clear();
                 while (sc.hasNextLine()) {
                     String[] info = (sc.nextLine().split(":"));
                     InetAddress ip = InetAddress.getByName(info[0]);
                     int port = Integer.valueOf(info[1]);
                     if(port != myPort)
-                        members.put(port, ip);
+                        newMembers.put(port, ip);
                 }
+                members = newMembers;
             } catch (FileNotFoundException e) {
                 System.out.println("file was not found");
             }
@@ -43,7 +46,7 @@ public class MembershipThread extends Thread {
             }
 
             try {
-                sleep(15000);
+                sleep(10000);
             } catch (InterruptedException e) {
                 System.out.println("couldn't sleep :(");
             }
