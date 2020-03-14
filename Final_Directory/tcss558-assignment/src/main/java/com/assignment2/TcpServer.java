@@ -61,7 +61,7 @@ public class TcpServer {
      * Reads the membership file and stores the members in the ConcurrentHashMap data structure.
      */
     public static void readFile() {
-        File file = new File("nodes.cfg");
+        File file = new File("/tmp/nodes.cfg");
         try {
             Scanner sc = new Scanner(file);
             while (sc.hasNextLine()) {

@@ -28,7 +28,7 @@ public class MembershipThread extends Thread {
 	public void run() {
 		ConcurrentHashMap<Integer, InetAddress> newMembers = new ConcurrentHashMap<>();
 		while (true) {
-			File file = new File("nodes.cfg");
+			File file = new File("/tmp/nodes.cfg");
 			try {
 				sc = new Scanner(file);
 				if (!newMembers.isEmpty())
